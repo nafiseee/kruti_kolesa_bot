@@ -20,4 +20,10 @@ def main_headler(message):
 
 if __name__ == '__main__':
     print("Бот запущен...")
+    from pympler import tracker
+
+    tr = tracker.SummaryTracker()
+
+    tr.print_diff()
+
     bot.polling(none_stop=True)

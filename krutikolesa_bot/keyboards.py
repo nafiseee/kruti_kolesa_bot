@@ -6,13 +6,15 @@ ms20 = types.KeyboardButton("Шаркусь монстр 20")
 mm15 = types.KeyboardButton("Мингто монстр 15")
 mpro = types.KeyboardButton("Монстр про")
 kr15 = types.KeyboardButton("Крути 15")
-BYCYCLE_MODEL_BUTTON.add(ms15, ms20, mm15, mpro, kr15)
+back= types.KeyboardButton("В начало")
+BYCYCLE_MODEL_BUTTON.add(ms15, ms20, mm15, mpro, kr15,back)
 
 
 WORK_TYPE_BUTTON = types.ReplyKeyboardMarkup(resize_keyboard=True)
 start_repair = types.KeyboardButton("Клиентский ремонт")
 button2 = types.KeyboardButton("Тех обслуживание")
-WORK_TYPE_BUTTON.add(start_repair, button2)
+back= types.KeyboardButton("В начало")
+WORK_TYPE_BUTTON.add(start_repair, button2,back)
 
 BACK_BUTTON = types.ReplyKeyboardMarkup(resize_keyboard=True)
 start_repair = types.KeyboardButton("Назад")
