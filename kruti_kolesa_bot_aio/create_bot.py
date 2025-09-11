@@ -5,7 +5,7 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 from decouple import config
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from aiogram.fsm.storage.redis import RedisStorage
+#from aiogram.fsm.storage.redis import RedisStorage
 
 
 

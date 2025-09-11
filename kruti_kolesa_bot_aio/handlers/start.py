@@ -12,7 +12,7 @@ from aiogram.utils.chat_action import ChatActionSender
 from validators.validators import name_validate,phone_validate,act_validate,model_validate,id_validate,iot_validate,bycycle_type_validate,work_is_true
 from electro_works import electro_works,electro_works_list
 from mechanical_works import mechanical_works
-
+import pandas as pd
 start_photo = FSInputFile('media/sticker.webm', filename='хуй')
 client_work_keys = ['work_type','full_name','phone_number','act_id','b_model','b_id','iot_id']
 client_work = ['','','Номер телефона: ','Акт №','Модель велосипеда: ','Номер велосипеда: ', 'IoT: ']
@@ -48,7 +48,7 @@ async def info(state):
     else:
         for i in data['a']:
             s+=f"{i}\n"
-    s+=f"\n<b>Норма часы:</b> {data['sum_norm_time']}👺"
+    s+=f"\n<b>Норма часы:</b> {sum(data['norm_time'])}👺"
     return s
 
 class Form(StatesGroup):
@@ -69,6 +69,20 @@ start  = Router()
 questionnaire_router = Router()
 works_router = Router()
 
+df = pd.read_excel('works_norm.xlsx',names = ['work','time','type','sale','group'])
+print(df)
+async def init_work(state,message):
+    print('ff')
+    await state.update_data(works=[], user_id=message.from_user.id)
+    await state.update_data(works_count={}, user_id=message.from_user.id)
+    await state.update_data(sum_norm_time=0, user_id=message.from_user.id)
+    await state.update_data(a=[], user_id=message.from_user.id)
+    await state.update_data(norm_time=[], user_id=message.from_user.id)
+    print('ff')
+    print_data = await info(state)
+    print(print_data)
+    await message.answer(print_data, reply_markup=works_edit_kb())
+    await state.set_state(Form.find_works)
 
 
 @start.message(Command('start')) #НАЧАЛО
@@ -77,6 +91,10 @@ async def start_questionnaire_process(message: Message, state: FSMContext):
     async with ChatActionSender.typing(bot=bot, chat_id=message.chat.id):
         await message.answer_photo(photo=FSInputFile('media/1.jpg', filename='Снеговик'),caption = 'Привет я твой помощник по занесению ремонтов. Что будем делать?', reply_markup=main_kb(message.from_user.id))
     await state.set_state(Form.client_start)
+
+@start.message(F.text=='⚙️ Админ панель') #НАЧАЛО
+async def start_questionnaire_process(message: Message, state: FSMContext):
+    await bot.send_video(message.chat.id,open('media/prikol.mp4','rb'))
 
 @questionnaire_router.message(F.text=='Техническое обслуживание',Form.client_start)
 async def start_questionnaire_process(message: Message, state: FSMContext):
@@ -164,68 +182,59 @@ async def start_questionnaire_process(message: Message, state: FSMContext):
         await message.reply("Некоректный номер велика. Попробуйте еще раз")
         return
     await state.update_data(b_id=message.text, user_id=message.from_user.id)
-    async with ChatActionSender.typing(bot=bot, chat_id=message.chat.id):
+    if await state.get_value('m_or_e') != 'Механика':
         await message.answer('Введите номер IoT модуля:', reply_markup=None)
-    await state.set_state(Form.iot_id)
+        await state.set_state(Form.iot_id)
+    else:
+        await init_work(state,message)
+
+
 @questionnaire_router.message(F.text,Form.iot_id)
 async def start_questionnaire_process(message: Message, state: FSMContext):
     if not iot_validate(message.text):
         await message.reply("Некоректный номер IoT. Попробуйте еще раз")
         return
     await state.update_data(iot_id=message.text, user_id=message.from_user.id)
-    print('ff')
-    await state.update_data(works = [],user_id=message.from_user.id)
-    await state.update_data(works_count={}, user_id=message.from_user.id)
-    await state.update_data(sum_norm_time=0, user_id=message.from_user.id)
-    await state.update_data(a=[], user_id=message.from_user.id)
-    print('ff')
-    print_data = await info(state)
-    print(print_data)
-    await message.answer(print_data, reply_markup=works_edit_kb())
-    await state.set_state(Form.find_works)
+    await init_work(state,message)
 
 @questionnaire_router.message(F.text=="Добавить работу",Form.find_works)
 async def start_questionnaire_process(message: Message, state: FSMContext):
-    data = await state.get_data()
-    await message.reply("Выбери вид работы:",reply_markup=works_groups(data['m_or_e']))
+    await message.reply("Выбери вид работы:",reply_markup=works_groups(await state.get_data(),df))
     await state.set_state(Form.find_work)
 
 @questionnaire_router.message(F.text,Form.find_work)
 async def start_questionnaire_process(message: Message, state: FSMContext):
-    data = await state.get_data()
-    if message.text in electro_works.keys() or message.text in mechanical_works.keys():
+    print(message.text)
+    print(df.group.unique())
+    if message.text in df.group.unique():
+        print('зашел')
         await state.update_data(last_group=message.text)
         await state.set_state(Form.add_work)
-        await message.reply("Выбери работу:",reply_markup=return_works_kb(message.text,data))
-
-        print('1')
+        await message.reply("Выбери работу:",reply_markup=return_works_kb(await state.get_data(),df))
     else:
-        print('2')
-        await message.reply("Выбери вид работы:", reply_markup=works_groups(data['m_or_e']))
+        await message.reply("Выбери вид работы:", reply_markup=works_groups(await state.get_data(),df))
         await state.set_state(Form.find_work)
 
 @questionnaire_router.message(F.text,Form.add_work)
 async def start_questionnaire_process(message: Message, state: FSMContext):
     data = await state.get_data()
-    if data['m_or_e']=='Электро':
-        if message.text in electro_works[data['last_group']]:
-            data['works'].append(message.text)
-            await state.update_data(data=data)
-            await state.set_state(Form.find_work)
-            await message.reply(await info(state),reply_markup=works_groups(data['m_or_e']))
-        else:
-            await message.reply("Выбери вид работы:", reply_markup=works_groups(data['m_or_e']))
-            await state.set_state(Form.find_work)
+    print(str(df.loc[((df['group']==data['last_group'])&(df['type']==data['m_or_e']))]['work']))
+    print(message.text)
+    if message.text in df.loc[((df['group']==data['last_group'])&(df['type']==data['m_or_e']))]['work'].unique():
+        data['works'].append(message.text)
+        data['norm_time'].append(float(
+            df.loc[((df['group']==data['last_group'])&
+                    (df['type']==data['m_or_e'])&
+                    (df['work']==message.text))]['time'].iloc[0]))
+        print(data['norm_time'],'==============================')
+        await state.update_data(data=data)
+        await state.set_state(Form.find_work)
+        # await message.reply(await info(state),reply_markup=works_groups(data,df))
+        print('DDD')
+        await message.answer(await info(state), reply_markup=works_edit_kb())
     else:
-        if message.text in mechanical_works[data['last_group']]:
-            data['works'].append(message.text)
-            await state.update_data(data=data)
-            await state.set_state(Form.find_work)
-            await message.reply(await info(state), reply_markup=works_groups(data['m_or_e']))
-
-        else:
-            await message.reply("Выбери вид работы:", reply_markup=works_groups(data['m_or_e']))
-            await state.set_state(Form.find_work)
+        await message.reply("Выбери вид работы:", reply_markup=works_groups(data,df))
+        await state.set_state(Form.find_work)
     # @questionnaire_router.message(F.text,Form.find_work)
 # async def start_questionnaire_process(message: Message, state: FSMContext):
 #     data = await state.get_data()

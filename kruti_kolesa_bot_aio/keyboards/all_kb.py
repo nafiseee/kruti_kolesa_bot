@@ -4,6 +4,9 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from electro_works import electro_works
 from mechanical_works import mechanical_works
+
+
+
 def main_kb(user_telegram_id: int):
     kb_list = [
         [KeyboardButton(text="Клиентский ремонт"), KeyboardButton(text="Техническое обслуживание")],
@@ -18,6 +21,7 @@ def main_kb(user_telegram_id: int):
         input_field_placeholder="Воспользуйтесь меню:"
     )
     return keyboard
+
 def m_or_e_kb():
     kb_list = [
         [KeyboardButton(text="Механика")],
@@ -60,25 +64,15 @@ def b_models(a):
     else:
         return InlineKeyboardMarkup(inline_keyboard=kb_list)
 #dict_keys(['accumulator', 'electronics', 'braking_system', 'drive_train', 'frame_and_wheels', 'body_and_cosmetic', 'lighting', 'other'])
-def works_groups(a):
-    if a=='Электро':
-        kb = [[KeyboardButton(text=i)] for i in electro_works.keys()]
-        keyboard = ReplyKeyboardMarkup(
-            keyboard=kb,
-            resize_keyboard=True,
-            one_time_keyboard=True,
-            input_field_placeholder="Воспользуйтесь меню:"
-        )
-        return keyboard
-    else:
-        kb = [[KeyboardButton(text=i)] for i in mechanical_works.keys()]
-        keyboard = ReplyKeyboardMarkup(
-            keyboard=kb,
-            resize_keyboard=True,
-            one_time_keyboard=True,
-            input_field_placeholder="Воспользуйтесь меню:"
-        )
-        return keyboard
+def works_groups(data,df):
+    kb = [[KeyboardButton(text=i)] for i in df[df['type']==data['m_or_e']]['group'].unique()]
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=kb,
+        resize_keyboard=True,
+        one_time_keyboard=True,
+        input_field_placeholder="Воспользуйтесь меню:"
+    )
+    return keyboard
 
 
 q_e = {
@@ -102,13 +96,8 @@ q_e = {
 }
 q_inv = {v: k for k, v in q_e.items()}
 print(q_inv)
-def return_works_kb(message,a):
-    kb_list = []
-    n = 0
-    if a['m_or_e']=='Электро':
-        kb = [[KeyboardButton(text=i)] for i in electro_works[message]]
-    else:
-        kb = [[KeyboardButton(text=i)] for i in mechanical_works[message]]
+def return_works_kb(data,df):
+    kb = [[KeyboardButton(text=i)] for i in df.loc[((df['group']==data['last_group'])&(df['type']==data['m_or_e']))]['work']]
     keyboard = ReplyKeyboardMarkup(
             keyboard=kb,
             resize_keyboard=True,
