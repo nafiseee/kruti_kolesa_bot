@@ -77,7 +77,6 @@ class Form(StatesGroup):
     wait = State()
 start  = Router()
 questionnaire_router = Router()
-works_router = Router()
 
 df = pd.read_excel('works_norm.xlsx',names = ['work','time','type','sale','group'])
 df_spare = pd.read_excel('spares.xlsx',names = ['spare','type','group'])
@@ -207,74 +206,10 @@ async def start_questionnaire_process(message: Message, state: FSMContext):
 
 
 
-#ВЫБОР ГРУППЫ РАБОТ
-@questionnaire_router.message(F.text=="Добавить работу")
-async def start_questionnaire_process(message: Message, state: FSMContext):
-    print('выюбор группы рабюот')
-    await state.set_state(Form.find_work)
-    await message.reply("Выбери вид работы:",reply_markup=works_groups(await state.get_data(),df))
-    await state.set_state(Form.find_work)
 
-@questionnaire_router.message(F.text=="Добавить запчасти")
-async def start_questionnaire_process(message: Message, state: FSMContext):
-    print('выюор группы зч')
-    await state.set_state(Form.find_spares)
-    await message.reply("Выберите группу запчастей",reply_markup=spares_groups(await state.get_data(),df_spare))
-    await state.set_state(Form.find_spare)
-#ВЫБОР РАБОТЫ ИЗ ГРУППЫ
-@questionnaire_router.message(F.text,Form.find_work)
-async def start_questionnaire_process(message: Message, state: FSMContext):
-    print('выбор работ')
-    if message.text in df.group.unique():
-        await state.update_data(last_group=message.text)
-        await state.set_state(Form.add_work)
-        await message.reply("Выбери работу:",reply_markup=return_works_kb(await state.get_data(),df))
-    else:
-        await message.reply("Выбери вид работы:", reply_markup=works_groups(await state.get_data(),df))
-        await state.set_state(Form.find_work)
-#ДОБАВЛЕНИЕ РАБОТЫ
-@questionnaire_router.message(F.text,Form.add_work)
-async def start_questionnaire_process(message: Message, state: FSMContext):
-    print('добавление работы')
-    data = await state.get_data()
-    if message.text in df.loc[((df['group']==data['last_group'])&(df['type']==data['m_or_e']))]['work'].unique():
-        data['works'].append(message.text)
-        data['norm_time'].append(float(
-            df.loc[((df['group']==data['last_group'])&
-                    (df['type']==data['m_or_e'])&
-                    (df['work']==message.text))]['time'].iloc[0]))
-        await state.update_data(data=data)
-        await state.set_state(Form.find_work)
-        await message.answer(await info(state), reply_markup=works_edit_kb())
-    else:
-        await message.reply("Выбери вид работы:", reply_markup=works_groups(data,df))
-        await state.set_state(Form.find_work)
 
 
 #=======================================================================================================
 
 
-@questionnaire_router.message(F.text,Form.find_spare)
-async def start_questionnaire_process(message: Message, state: FSMContext):
-    print('выбор запчасти')
-    if message.text in df_spare.group.unique():
-        await state.update_data(last_spare_group=message.text)
-        await state.set_state(Form.add_spare)
-        await message.reply("Выбери запчасть:",reply_markup=return_spares_kb(await state.get_data(),df_spare))
-    else:
-        await message.reply("Выбери группу запчастей:", reply_markup=spares_groups(await state.get_data(),df_spare))
-        await state.set_state(Form.find_spare)
-#ДОБАВЛЕНИЕ РАБОТЫ
-@questionnaire_router.message(F.text,Form.add_spare)
-async def start_questionnaire_process(message: Message, state: FSMContext):
-    print('добавление зч')
-    data = await state.get_data()
-    if message.text in df_spare.loc[((df_spare['group']==data['last_spare_group'])&(df_spare['type']==data['m_or_e']))]['spare'].unique():
-        data['spares'].append(message.text)
-        await state.update_data(data=data)
-        await state.set_state(Form.find_spare)
-        await message.answer(await info(state), reply_markup=works_edit_kb())
 
-    else:
-        await message.reply("Выбери группу запчастей:", reply_markup=spares_groups(data,df_spare))
-        await state.set_state(Form.find_spare)
