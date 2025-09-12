@@ -36,7 +36,7 @@ def m_or_e_kb():
     return keyboard
 def works_edit_kb():
     kb_list = [
-        [KeyboardButton(text="Добавить работу"), KeyboardButton(text="Добавить ЗЧ")],
+        [KeyboardButton(text="Добавить работу"), KeyboardButton(text="Добавить запчасти")],
         [KeyboardButton(text="сегодня какал сильно тужилсяяя"), KeyboardButton(text="пупупууум")]
     ]
     keyboard = ReplyKeyboardMarkup(
@@ -74,28 +74,6 @@ def works_groups(data,df):
     )
     return keyboard
 
-
-q_e = {
-    "Рама и вилка": "frame_and_fork",
-    "Колеса и шины": "wheels_and_tires",
-    "Тормозная система": "brake_system",
-    "Трансмиссия": "transmission",
-    "Рулевое управление": "steering_control",
-    "Электроника": "electronics",
-    "Аккумуляторная система": "battery_system",
-    "Освещение и сигнализация": "lighting_and_signaling",
-    "Дисплей и управление": "display_and_control",
-    "Сиденье и подседельная система": "seat_and_seatpost_system",
-    "Крылья и защита": "fenders_and_protection",
-    "Подножки и багажник": "footrests_and_luggage_rack",
-    "IOT модули": "iot_modules",
-    "Техническое обслуживание": "technical_maintenance",
-    "PRO серия": "pro_series",
-    "Сборка/разборка": "assembly_disassembly",
-    "Прочее": "other"
-}
-q_inv = {v: k for k, v in q_e.items()}
-print(q_inv)
 def return_works_kb(data,df):
     kb = [[KeyboardButton(text=i)] for i in df.loc[((df['group']==data['last_group'])&(df['type']==data['m_or_e']))]['work']]
     keyboard = ReplyKeyboardMarkup(
@@ -105,15 +83,24 @@ def return_works_kb(data,df):
             input_field_placeholder="Воспользуйтесь меню:"
         )
     return keyboard
-    # for i in grouped[q[a]]:
-    #     kb_list.append([InlineKeyboardButton(text=i, callback_data=f"{q[a]}|{str(n)}")])
-    #     n+=1
-    # kb_list.append([InlineKeyboardButton(text='Назад', callback_data="Назад")])
-    # return InlineKeyboardMarkup(inline_keyboard=kb_list)
 
-def get_text(a):
-    qq = a.split('|')
-    return grouped[qq[0]][int(qq[1])]
-def get_norm_time(a):
-    qq = a.split('|')
-    return
+#=====================================================================================
+def spares_groups(data,df):
+    kb = [[KeyboardButton(text=i)] for i in df[df['type']==data['m_or_e']]['group'].unique()]
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=kb,
+        resize_keyboard=True,
+        one_time_keyboard=True,
+        input_field_placeholder="Воспользуйтесь меню:"
+    )
+    return keyboard
+
+def return_spares_kb(data,df):
+    kb = [[KeyboardButton(text=i)] for i in df.loc[((df['group']==data['last_spare_group'])&(df['type']==data['m_or_e']))]['spare']]
+    keyboard = ReplyKeyboardMarkup(
+            keyboard=kb,
+            resize_keyboard=True,
+            one_time_keyboard=True,
+            input_field_placeholder="Воспользуйтесь меню:"
+        )
+    return keyboard
