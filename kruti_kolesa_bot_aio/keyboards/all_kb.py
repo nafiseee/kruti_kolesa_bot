@@ -14,6 +14,8 @@ def main_kb(user_telegram_id: int):
     ]
     if user_telegram_id in admins:
         kb_list.append([KeyboardButton(text="⚙️ Админ панель")])
+    if user_telegram_id in [168604695,1003927607,933028899]:
+        kb_list.append([KeyboardButton(text="🎸 Музыка")])
     keyboard = ReplyKeyboardMarkup(
         keyboard=kb_list,
         resize_keyboard=True,

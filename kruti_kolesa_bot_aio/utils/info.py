@@ -41,5 +41,5 @@ async def info(state):
     else:
         for i in data['spares']:
             s+=f"{i}\n"
-    s+=f"\n<b>Норма часы:</b> {float(sum(data['norm_time']),1)}👺"
+    s+=f"\n<b>Норма часы:</b> {round(sum(data['norm_time']),1)}👺"
     return s
