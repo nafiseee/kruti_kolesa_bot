@@ -35,6 +35,10 @@ async def start_questionnaire_process(message: Message, state: FSMContext):
 @works_router.message(F.text,Form.find_work)
 async def start_questionnaire_process(message: Message, state: FSMContext):
     print('выбор работ')
+    if message.text=='Назад':
+        await state.set_state(Form.client_start)
+        await message.answer('хих',reply_markup=works_edit_kb())
+        return
     if message.text in df.group.unique():
         await state.update_data(last_group=message.text)
         await state.set_state(Form.add_work)

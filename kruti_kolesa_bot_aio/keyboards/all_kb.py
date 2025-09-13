@@ -25,7 +25,8 @@ def main_kb(user_telegram_id: int):
 def m_or_e_kb():
     kb_list = [
         [KeyboardButton(text="Механика")],
-        [KeyboardButton(text="Электро")]
+        [KeyboardButton(text="Электро")],
+        [KeyboardButton(text="Отмена")]
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=kb_list,
@@ -37,7 +38,8 @@ def m_or_e_kb():
 def works_edit_kb():
     kb_list = [
         [KeyboardButton(text="Добавить работу"), KeyboardButton(text="Добавить запчасти")],
-        [KeyboardButton(text="сегодня какал сильно тужилсяяя"), KeyboardButton(text="пупупууум")]
+        [KeyboardButton(text="сегодня какал сильно тужилсяяя"), KeyboardButton(text="пупупууум")],
+        [KeyboardButton(text="Отмена")]
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=kb_list,
@@ -66,6 +68,7 @@ def b_models(a):
 #dict_keys(['accumulator', 'electronics', 'braking_system', 'drive_train', 'frame_and_wheels', 'body_and_cosmetic', 'lighting', 'other'])
 def works_groups(data,df):
     kb = [[KeyboardButton(text=i)] for i in df[df['type']==data['m_or_e']]['group'].unique()]
+    kb.append([KeyboardButton(text='Назад')])
     keyboard = ReplyKeyboardMarkup(
         keyboard=kb,
         resize_keyboard=True,
@@ -76,6 +79,7 @@ def works_groups(data,df):
 
 def return_works_kb(data,df):
     kb = [[KeyboardButton(text=i)] for i in df.loc[((df['group']==data['last_group'])&(df['type']==data['m_or_e']))]['work']]
+    kb.append([KeyboardButton(text='Назад')])
     keyboard = ReplyKeyboardMarkup(
             keyboard=kb,
             resize_keyboard=True,
@@ -87,6 +91,7 @@ def return_works_kb(data,df):
 #=====================================================================================
 def spares_groups(data,df):
     kb = [[KeyboardButton(text=i)] for i in df[df['type']==data['m_or_e']]['group'].unique()]
+    kb.append([KeyboardButton(text='Назад')])
     keyboard = ReplyKeyboardMarkup(
         keyboard=kb,
         resize_keyboard=True,
@@ -97,6 +102,7 @@ def spares_groups(data,df):
 
 def return_spares_kb(data,df):
     kb = [[KeyboardButton(text=i)] for i in df.loc[((df['group']==data['last_spare_group'])&(df['type']==data['m_or_e']))]['spare']]
+    kb.append([KeyboardButton(text='Назад')])
     keyboard = ReplyKeyboardMarkup(
             keyboard=kb,
             resize_keyboard=True,

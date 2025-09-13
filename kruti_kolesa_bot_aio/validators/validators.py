@@ -2,7 +2,7 @@ import re
 from electro_works import electro_works
 from mechanical_works import mechanical_works
 def name_validate(text):
-    pattern = r'^[А-ЯЁ][а-яё]+ [А-ЯЁ][а-яё]+ [А-ЯЁ][а-яё]+$'
+    pattern = r'^[А-ЯЁ][а-яё]+ [А-ЯЁ][а-яё]+$'
     return bool(re.match(pattern, text))
 def phone_validate(text):
     pattern = r'^8\d{10}$'

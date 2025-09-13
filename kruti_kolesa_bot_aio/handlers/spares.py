@@ -39,6 +39,10 @@ async def start_questionnaire_process(message: Message, state: FSMContext):
 @spares_router.message(F.text,Form.find_spare)
 async def start_questionnaire_process(message: Message, state: FSMContext):
     print('выбор запчасти')
+    if message.text=='Назад':
+        await state.set_state(Form.client_start)
+        await message.answer('хих',reply_markup=works_edit_kb())
+        return
     if message.text in df_spare.group.unique():
         await state.update_data(last_spare_group=message.text)
         await state.set_state(Form.add_spare)
