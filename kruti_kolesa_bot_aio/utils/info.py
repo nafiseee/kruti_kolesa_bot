@@ -39,7 +39,10 @@ async def info(state):
                         s += f"{i} ({data['works_count'][i]}x)\n"
 
     else:
-        for i in data['spares']:
-            s+=f"{i}\n"
+        for i in range(len(data['spares'])):
+            if data['spares_types'][i]:
+                s+=f"{data['spares'][i]} [б/у]\n"
+            else:
+                s += f"{data['spares'][i]}\n"
     s+=f"\n<b>Норма часы:</b> {round(sum(data['norm_time']),1)}👺"
     return s

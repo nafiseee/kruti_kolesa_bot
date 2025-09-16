@@ -46,6 +46,7 @@ async def init_work(state,message):
     await state.update_data(a=[], user_id=message.from_user.id)
     await state.update_data(norm_time=[], user_id=message.from_user.id)
     await state.update_data(spares=[], user_id=message.from_user.id)
+    await state.update_data(spares_types=[], user_id=message.from_user.id)
     print('ff')
     print_data = await info(state)
     print(print_data)
@@ -82,6 +83,10 @@ async def start_questionnaire_process(message: Message, state: FSMContext):
         await state.update_data(message_id = message.from_user.id+1)
         await message.answer('Введи ФИО:', reply_markup=ReplyKeyboardRemove())
     await state.set_state(Form.full_name)
+
+@questionnaire_router.message(F.text=='Аккомулятор',Form.client_start)
+async def start_questionnaire_process(message: Message, state: FSMContext):
+    await message.answer('папапам опаздываю на работу', reply_markup=ReplyKeyboardRemove())
 
 @questionnaire_router.message(F.text,Form.full_name)
 async def start_questionnaire_process(message: Message, state: FSMContext):
@@ -127,7 +132,6 @@ async def start_questionnaire_process(message: Message, state: FSMContext):
 @questionnaire_router.message(F.text,Form.b_model)
 async def start_questionnaire_process(message: Message, state: FSMContext):
     data = await state.get_data()
-    print(data['m_or_e'])
     if not model_validate(message.text):
         await message.reply("Выберите модель из списка:",reply_markup=b_models(data['m_or_e']))
         return
