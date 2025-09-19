@@ -8,7 +8,6 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 #from aiogram.fsm.storage.redis import RedisStorage
 
 
-
 # from db_handler.db_class import PostgresHandler
 # pg_db = PostgresHandler(config('PG_LINK'))
 scheduler = AsyncIOScheduler()

@@ -1,7 +1,7 @@
 from aiogram import Router, F
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
-from keyboards.all_kb import main_kb,b_models,works_edit_kb,works_groups,return_works_kb,m_or_e_kb,add_spares,spares_list_for_work
+from keyboards.all_kb import main_kb,b_models,works_edit_kb,works_groups,return_works_kb,m_or_e_kb,add_spares,spares_list_for_work,to_delete_work,edit_work,deleting_works
 from aiogram.fsm.context import FSMContext
 import pandas as pd
 from utils.info import info
@@ -23,15 +23,32 @@ class Form(StatesGroup):
     find_spares = State()
     wait = State()
     getting_spare = State()
+    remont_edit = State()
+    deleting_work = State()
+    next_menu = State()
 
 works_router = Router()
 
-@works_router.message(F.text == "Добавить работу")
+@works_router.message(F.text == "➕ Добавить работу")
 async def start_questionnaire_process(message: Message, state: FSMContext):
     print('выюбор группы рабюот')
     await state.set_state(Form.find_work)
     await message.reply("Выбери вид работы:", reply_markup=works_groups(await state.get_data(), df))
     await state.set_state(Form.find_work)
+@works_router.message(F.text=="🗑 Удалить работу",Form.remont_edit)
+async def start_questionnaire_process(message: Message, state: FSMContext):
+    await message.reply("Что удалить?", reply_markup=deleting_works(await state.get_data()))
+    await state.set_state(Form.deleting_work)
+
+@works_router.message(F.text,Form.deleting_work)
+async def start_questionnaire_process(message: Message, state: FSMContext):
+    data = await state.get_data()
+    if message.text in  data['works']:
+        data['works'].remove(message.text)
+        await message.answer(await info(state), reply_markup=works_edit_kb())
+        await state.set_state(Form.next_menu)
+    else:
+        print('пизда')
 
 @works_router.message(F.text,Form.find_work)
 async def start_questionnaire_process(message: Message, state: FSMContext):

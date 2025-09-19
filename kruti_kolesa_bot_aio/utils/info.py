@@ -1,7 +1,9 @@
 client_work_keys = ['work_type', 'full_name', 'phone_number', 'act_id', 'b_model', 'b_id', 'iot_id']
 client_work = ['', '', 'Номер телефона: ', 'Акт №', 'Модель велосипеда: ', 'Номер велосипеда: ', 'IoT: ']
 async def info(state):
+
     data = await state.get_data()
+    print(data['spares_types'])
     s = f"<b>Мастер:</b> {data['employer']} | {data['start_time']}\n\n"
     for q,w in enumerate(client_work_keys):
         if w in data:
@@ -45,4 +47,9 @@ async def info(state):
             else:
                 s += f"{data['spares'][i]}\n"
     s+=f"\n<b>Норма часы:</b> {round(sum(data['norm_time']),1)}👺"
+    s+='<blockquote>'
+    for i in data.keys():
+        s+=str(i)
+        s+="\n"
+    s+='</blockquote>'
     return s

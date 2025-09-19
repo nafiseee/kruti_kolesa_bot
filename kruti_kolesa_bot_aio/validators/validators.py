@@ -17,7 +17,7 @@ def id_validate(text):
 def iot_validate(text):
     return act_validate(text)
 def bycycle_type_validate(text):
-    return text in ['Механика','Электро']
+    return text in ['🔩 Механика','⚡ Электро']
 def work_is_true(text):
     for i in electro_works.values():
         if text in i:
